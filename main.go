@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -21,7 +22,7 @@ func main() {
 
 	// server config load from env vars
 	config := server.Config{
-		Port:      os.Getenv("PORT"),
+		Port:      fmt.Sprintf(":%s", os.Getenv("PORT")),
 		JWTSecret: os.Getenv("JWT_SECRET"),
 		DBUrl:     os.Getenv("DATABASE_URL"),
 	}
