@@ -32,7 +32,7 @@ func (prepo *PostgresRepo) InsertUser(ctx context.Context, user *models.User) er
 	return err
 }
 
-func (prepo *PostgresRepo) GetUserByID(ctx context.Context, id int64) (*models.User, error) {
+func (prepo *PostgresRepo) GetUserByID(ctx context.Context, id string) (*models.User, error) {
 	// QueryContext returns the rows of the query result
 	rows, err := prepo.db.QueryContext(ctx, "select id, email from user where id = $1;", id)
 	if err != nil {
