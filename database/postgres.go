@@ -27,14 +27,14 @@ func NewPostgresRepo(url string) (*PostgresRepo, error) { // constructor
 
 func (prepo *PostgresRepo) InsertUser(ctx context.Context, user *models.User) error {
 	// ExecContext execute the query without returning any rows
-	_, err := prepo.db.ExecContext(ctx, "insert into user (email, password) values ($1, $2);",
-		user.Email, user.Password)
+	_, err := prepo.db.ExecContext(ctx, "insert into users (id, email, password) values ($1, $2, $3);",
+		user.Id, user.Email, user.Password)
 	return err
 }
 
 func (prepo *PostgresRepo) GetUserByID(ctx context.Context, id string) (*models.User, error) {
 	// QueryContext returns the rows of the query result
-	rows, err := prepo.db.QueryContext(ctx, "select id, email from user where id = $1;", id)
+	rows, err := prepo.db.QueryContext(ctx, "select id, email from users where id = $1;", id)
 	if err != nil {
 		return nil, err
 	}

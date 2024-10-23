@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS users;
 
-CREATE TABLE user (
+CREATE TABLE users (
     id varchar(32) PRIMARY KEY,
     password varchar(255) not null,
     email varchar(255) not null,
-    created_at timestamp not null default NOW(),
+    created_at timestamp not null default NOW()
 );
