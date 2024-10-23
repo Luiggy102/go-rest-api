@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/Luiggy102/go-rest-ws/models"
+	_ "github.com/lib/pq"
 )
 
 // create a PostgresRepo for implement a userRepo
