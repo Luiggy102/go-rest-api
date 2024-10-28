@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/Luiggy102/go-rest-ws/models"
@@ -56,6 +57,21 @@ func (prepo *PostgresRepo) GetUserByID(ctx context.Context, id string) (*models.
 		}
 	}
 	return &u, nil
+}
+
+func (prepo *PostgresRepo) UserEmailExits(ctx context.Context, email string) (bool, error) {
+	q := fmt.Sprintf(" select exists(select email from users where email='%s');", email)
+	row := prepo.db.QueryRowContext(ctx, q)
+	var dbResult string
+	err := row.Scan(&dbResult)
+	if err != nil {
+		return false, err
+	}
+	if dbResult == "true" {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }
 
 // close the PostgresRepo db

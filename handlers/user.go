@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/Luiggy102/go-rest-ws/models"
@@ -27,6 +29,20 @@ func SignUpHandler(s server.Server) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		// check if user already exist by checking the input email
+		usersExists, err := repository.UserEmailExists(context.Background(), signUpResquest.Email)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		if usersExists {
+			http.Error(w,
+				fmt.Sprintf("Email: %s already exist!\n", signUpResquest.Email),
+				http.StatusBadRequest)
+			return
+			// fmt.Fprintf(w, "Email: %s already exist!\n", signUpResquest.Email)
+		}
+		// user email don't exist
 		// generate user id
 		id, err := ksuid.NewRandom()
 		if err != nil {
