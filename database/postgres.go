@@ -59,6 +59,28 @@ func (prepo *PostgresRepo) GetUserByID(ctx context.Context, id string) (*models.
 	return &u, nil
 }
 
+func (prepo *PostgresRepo) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
+	rows, err := prepo.db.QueryContext(ctx, "select email, password from users where email = $1;", email)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	u := models.User{}
+	for rows.Next() {
+		err = rows.Scan(&u.Email, &u.Password)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &u, nil
+}
+
 func (prepo *PostgresRepo) UserEmailExits(ctx context.Context, email string) (bool, error) {
 	q := fmt.Sprintf(" select exists(select email from users where email='%s');", email)
 	row := prepo.db.QueryRowContext(ctx, q)
