@@ -10,6 +10,7 @@ import (
 	"github.com/Luiggy102/go-rest-ws/repository"
 	"github.com/Luiggy102/go-rest-ws/server"
 	"github.com/segmentio/ksuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type SignUpRequest struct {
@@ -49,11 +50,16 @@ func SignUpHandler(s server.Server) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		// generate password hash
+		hassedPassword, err := bcrypt.GenerateFromPassword([]byte(signUpResquest.Password), bcrypt.DefaultCost)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		// create user struct
 		u := models.User{
 			Id:       id.String(),
 			Email:    signUpResquest.Email,
-			Password: signUpResquest.Password,
+			Password: string(hassedPassword),
 		}
 		// create a new user
 		// using the db repository
