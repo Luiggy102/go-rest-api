@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/Luiggy102/go-rest-ws/handlers"
+	"github.com/Luiggy102/go-rest-ws/middleware"
 	"github.com/Luiggy102/go-rest-ws/server"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -37,6 +38,8 @@ func main() {
 
 // define endpoints for router start
 func BindRoutes(s server.Server, r *mux.Router) {
+	// use the middleware
+	r.Use(middleware.CheckAuth(s))
 	// handler func and http methods
 	r.HandleFunc("/", handlers.HomeHandler(s)).
 		Methods(http.MethodGet)
@@ -44,4 +47,6 @@ func BindRoutes(s server.Server, r *mux.Router) {
 		Methods(http.MethodPost)
 	r.HandleFunc("/login", handlers.LogInHandler(s)).
 		Methods(http.MethodPost)
+	r.HandleFunc("/me", handlers.MeHandler(s)).
+		Methods(http.MethodGet)
 }

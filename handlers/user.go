@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/Luiggy102/go-rest-ws/models"
@@ -15,7 +16,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type SignUpLoginRequest struct {
+type SignUpLogInRequest struct {
 	Email    string
 	Password string
 }
@@ -29,7 +30,7 @@ type LogInResponse struct {
 
 func SignUpHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		signUpResquest := SignUpLoginRequest{}
+		signUpResquest := SignUpLogInRequest{}
 		err := json.NewDecoder(r.Body).Decode(&signUpResquest)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -92,7 +93,7 @@ func SignUpHandler(s server.Server) http.HandlerFunc {
 func LogInHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// see what values the client sents
-		var logInRequest = SignUpLoginRequest{}
+		var logInRequest = SignUpLogInRequest{}
 		err := json.NewDecoder(r.Body).Decode(&logInRequest)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -106,9 +107,13 @@ func LogInHandler(s server.Server) http.HandlerFunc {
 		}
 		if u == nil {
 			http.Error(w, "invalid credentials", http.StatusUnauthorized)
+			return
 		}
 		// compare password
-		if err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(logInRequest.Password)); err != nil {
+		if err = bcrypt.CompareHashAndPassword(
+			[]byte(u.Password),
+			[]byte(logInRequest.Password),
+		); err != nil {
 			// invalid password
 			http.Error(w, "invalid credentials", http.StatusUnauthorized)
 			return
@@ -124,7 +129,9 @@ func LogInHandler(s server.Server) http.HandlerFunc {
 		}
 		// generate new token
 		// algorithm hs256 for making the token
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		token := jwt.NewWithClaims(
+			jwt.SigningMethodHS256,
+			claims)
 		// sign the token with the env password (added in the config)
 		tokenStr, err := token.SignedString([]byte(s.Config().JWTSecret))
 		if err != nil {
@@ -138,5 +145,30 @@ func LogInHandler(s server.Server) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+func MeHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// bring the token
+		tokenStr := strings.TrimSpace(r.Header.Get("Authorization"))
+
+		token, err := jwt.ParseWithClaims(
+			tokenStr,
+			&models.AppClaims{},
+			func(t *jwt.Token) (interface{}, error) {
+				return []byte(s.Config().JWTSecret), nil
+			},
+		)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+
+		fmt.Println(token.Raw, token.Claims)
+
+		// claims := token.Claims.(*models.AppClaims)
+		// fmt.Println(time.Unix(claims.ExpiresAt, 0))
 	}
 }
