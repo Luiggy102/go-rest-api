@@ -60,7 +60,7 @@ func (prepo *PostgresRepo) GetUserByID(ctx context.Context, id string) (*models.
 }
 
 func (prepo *PostgresRepo) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
-	rows, err := prepo.db.QueryContext(ctx, "select email, password from users where email = $1;", email)
+	rows, err := prepo.db.QueryContext(ctx, "select id, email, password from users where email = $1;", email)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (prepo *PostgresRepo) GetUserByEmail(ctx context.Context, email string) (*m
 
 	u := models.User{}
 	for rows.Next() {
-		err = rows.Scan(&u.Email, &u.Password)
+		err = rows.Scan(&u.Id, &u.Email, &u.Password)
 		if err != nil {
 			return nil, err
 		}
