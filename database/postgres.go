@@ -28,8 +28,12 @@ func NewPostgresRepo(url string) (*PostgresRepo, error) { // constructor
 
 func (prepo *PostgresRepo) InsertUser(ctx context.Context, user *models.User) error {
 	// ExecContext execute the query without returning any rows
-	_, err := prepo.db.ExecContext(ctx, "insert into users (id, email, password) values ($1, $2, $3);",
-		user.Id, user.Email, user.Password)
+	_, err := prepo.db.ExecContext(ctx,
+		"insert into users (id, email, password) values ($1, $2, $3);",
+		user.Id,
+		user.Email,
+		user.Password,
+	)
 	return err
 }
 
@@ -99,7 +103,7 @@ func (prepo *PostgresRepo) UserEmailExits(ctx context.Context, email string) (bo
 // insert post in the db
 func (prepo *PostgresRepo) InsertPost(ctx context.Context, post *models.Post) error {
 	_, err := prepo.db.ExecContext(ctx,
-		"insert into post (id, post_content, user_id) values ($1, $2, $3);",
+		"insert into posts (id, post_content, user_id) values ($1, $2, $3);",
 		post.Id,
 		post.PostContent,
 		post.UserId,
