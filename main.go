@@ -39,7 +39,10 @@ func main() {
 // define endpoints for router start
 func BindRoutes(s server.Server, r *mux.Router) {
 	// use the middleware
-	r.Use(middleware.CheckAuth(s))
+	r.Use(
+		middleware.Log(s),
+		middleware.CheckAuth(s),
+	)
 	// handler func and http methods
 	r.HandleFunc("/", handlers.HomeHandler(s)).
 		Methods(http.MethodGet)
