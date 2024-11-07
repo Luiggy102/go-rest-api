@@ -9,6 +9,7 @@ import (
 	"github.com/Luiggy102/go-rest-ws/repository"
 	"github.com/Luiggy102/go-rest-ws/server"
 	"github.com/golang-jwt/jwt"
+	"github.com/gorilla/mux"
 	"github.com/segmentio/ksuid"
 )
 
@@ -21,6 +22,7 @@ type PostResponse struct {
 	PostContent string `json:"post_content"`
 }
 
+// create
 func InsertPostHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		tokenStr := strings.TrimSpace(r.Header.Get("Authorization"))
@@ -73,6 +75,7 @@ func InsertPostHandler(s server.Server) http.HandlerFunc {
 			}
 
 			// send the response
+			w.Header().Set("Content-Type", "application/json")
 			err = json.NewEncoder(w).Encode(&response)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -83,5 +86,75 @@ func InsertPostHandler(s server.Server) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+	}
+}
+
+// read
+func GetPostByIdHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		params := mux.Vars(r)
+		postId := params["id"]
+
+		// call the db
+		p, err := repository.GetPostById(r.Context(), postId)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		// send the response
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(&p)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
+// update
+func UpdatePostHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// tokenStr := strings.TrimSpace(r.Header.Get("Authorization"))
+		// token, err := jwt.ParseWithClaims(
+		// 	tokenStr,
+		// 	&models.AppClaims{},
+		// 	func(t *jwt.Token) (interface{}, error) {
+		// 		return []byte(s.Config().JWTSecret), nil
+		// 	},
+		// )
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusUnauthorized)
+		// 	return
+		// }
+		// if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
+		// } else {
+		// 	// incorrect token or error
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 	return
+		// }
+	}
+}
+
+// delete
+func DelelePostHandler(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// tokenStr := strings.TrimSpace(r.Header.Get("Authorization"))
+		// token, err := jwt.ParseWithClaims(
+		// 	tokenStr,
+		// 	&models.AppClaims{},
+		// 	func(t *jwt.Token) (interface{}, error) {
+		// 		return []byte(s.Config().JWTSecret), nil
+		// 	},
+		// )
+		// if err != nil {
+		// 	http.Error(w, err.Error(), http.StatusUnauthorized)
+		// 	return
+		// }
+		// if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
+		// } else {
+		// 	// incorrect token or error
+		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+		// 	return
+		// }
 	}
 }

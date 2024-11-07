@@ -56,4 +56,6 @@ func BindRoutes(s server.Server, r *mux.Router) {
 		Methods(http.MethodGet)
 	r.HandleFunc("/posts", handlers.InsertPostHandler(s)).
 		Methods(http.MethodPost)
+	r.HandleFunc("/posts/{id}", handlers.GetPostByIdHandler(s)).
+		Methods(http.MethodGet)
 }
