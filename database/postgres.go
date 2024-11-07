@@ -96,6 +96,17 @@ func (prepo *PostgresRepo) UserEmailExits(ctx context.Context, email string) (bo
 	}
 }
 
+// insert post in the db
+func (prepo *PostgresRepo) InsertPost(ctx context.Context, post *models.Post) error {
+	_, err := prepo.db.ExecContext(ctx,
+		"insert into post (id, post_content, user_id) values ($1, $2, $3);",
+		post.Id,
+		post.PostContent,
+		post.UserId,
+	)
+	return err
+}
+
 // close the PostgresRepo db
 func (prepo *PostgresRepo) Close() error {
 	err := prepo.db.Close()
