@@ -43,12 +43,15 @@ func BindRoutes(s server.Server, r *mux.Router) {
 		middleware.CheckAuth(s),
 	)
 	// handler func and http methods
+	// --- no token auth --- //
 	r.HandleFunc("/", handlers.HomeHandler(s)).
 		Methods(http.MethodGet)
 	r.HandleFunc("/signup", handlers.SignUpHandler(s)).
 		Methods(http.MethodPost)
 	r.HandleFunc("/login", handlers.LogInHandler(s)).
 		Methods(http.MethodPost)
+
+		// token auth
 	r.HandleFunc("/me", handlers.MeHandler(s)).
 		Methods(http.MethodGet)
 	r.HandleFunc("/posts", handlers.InsertPostHandler(s)).

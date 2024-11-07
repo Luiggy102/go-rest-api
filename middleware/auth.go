@@ -9,7 +9,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-var noAuthNeededPath = []string{"login", "signup"}
+var noAuthNeededPath = []string{"/", "login", "signup"}
 
 // check if the path need an auth
 func shoulCheckToken(path string) bool {

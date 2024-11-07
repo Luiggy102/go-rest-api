@@ -101,12 +101,56 @@ func (prepo *PostgresRepo) UserEmailExits(ctx context.Context, email string) (bo
 }
 
 // insert post in the db
+// create
 func (prepo *PostgresRepo) InsertPost(ctx context.Context, post *models.Post) error {
 	_, err := prepo.db.ExecContext(ctx,
 		"insert into posts (id, post_content, user_id) values ($1, $2, $3);",
 		post.Id,
 		post.PostContent,
 		post.UserId,
+	)
+	return err
+}
+
+// read
+func (prepo *PostgresRepo) GetPostById(ctx context.Context, id string) (*models.Post, error) {
+	rows, err := prepo.db.QueryContext(ctx,
+		"select id, post_content, created_at, user_id from posts where id = $1;",
+		id,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	p := models.Post{}
+	for rows.Next() {
+		err = rows.Scan(&p.Id, &p.PostContent, &p.CreatedAt, &p.UserId)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &p, nil
+}
+
+// update
+func (prepo *PostgresRepo) UpdatePost(ctx context.Context, post *models.Post) error {
+	_, err := prepo.db.ExecContext(ctx,
+		"update posts where id = $1 and user_id = $2",
+		post.Id, post.UserId,
+	)
+	return err
+}
+
+// delete
+func (prepo *PostgresRepo) DeletePost(ctx context.Context, id string, userId string) error {
+	_, err := prepo.db.ExecContext(ctx,
+		"delete from posts where id = $1 and user_id = $2",
+		id, userId,
 	)
 	return err
 }
