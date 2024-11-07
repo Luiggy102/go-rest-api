@@ -140,8 +140,8 @@ func (prepo *PostgresRepo) GetPostById(ctx context.Context, id string) (*models.
 // update
 func (prepo *PostgresRepo) UpdatePost(ctx context.Context, post *models.Post) error {
 	_, err := prepo.db.ExecContext(ctx,
-		"update posts where id = $1 and user_id = $2",
-		post.Id, post.UserId,
+		"update posts set post_content = $1 where id = $2 and user_id = $3",
+		post.PostContent, post.Id, post.UserId,
 	)
 	return err
 }

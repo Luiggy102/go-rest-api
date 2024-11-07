@@ -22,6 +22,10 @@ type PostResponse struct {
 	PostContent string `json:"post_content"`
 }
 
+type PostUpdateResponse struct {
+	Message string `json:"message"`
+}
+
 // create
 func InsertPostHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -114,24 +118,60 @@ func GetPostByIdHandler(s server.Server) http.HandlerFunc {
 // update
 func UpdatePostHandler(s server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// tokenStr := strings.TrimSpace(r.Header.Get("Authorization"))
-		// token, err := jwt.ParseWithClaims(
-		// 	tokenStr,
-		// 	&models.AppClaims{},
-		// 	func(t *jwt.Token) (interface{}, error) {
-		// 		return []byte(s.Config().JWTSecret), nil
-		// 	},
-		// )
-		// if err != nil {
-		// 	http.Error(w, err.Error(), http.StatusUnauthorized)
-		// 	return
-		// }
-		// if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
-		// } else {
-		// 	// incorrect token or error
-		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 	return
-		// }
+		tokenStr := strings.TrimSpace(r.Header.Get("Authorization"))
+		token, err := jwt.ParseWithClaims(
+			tokenStr,
+			&models.AppClaims{},
+			func(t *jwt.Token) (interface{}, error) {
+				return []byte(s.Config().JWTSecret), nil
+			},
+		)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+			return
+		}
+		if claims, ok := token.Claims.(*models.AppClaims); ok && token.Valid {
+			params := mux.Vars(r)
+			// decode de update
+			var request PostRequest
+			err := json.NewDecoder(r.Body).Decode(&request)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+			// get the user id and the post id
+			postId := params["id"]
+			userId := claims.UserId
+
+			// struct for the db
+			p := models.Post{
+				Id:          postId,
+				UserId:      userId,
+				PostContent: request.PostContent,
+			}
+
+			// update the db
+			err = repository.UpdatePost(r.Context(), &p)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			// send the response
+			w.Header().Set("Content-Type", "application/json")
+			err = json.NewEncoder(w).Encode(&PostUpdateResponse{
+				Message: "Post Updated",
+			})
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+		} else {
+			// incorrect token or error
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
