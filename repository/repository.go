@@ -6,11 +6,8 @@ import (
 	"github.com/Luiggy102/go-rest-ws/models"
 )
 
-// two methods User
-// insert
-// get(by ID)
-// close for closing a database
-type UserRepo interface {
+// methods for Repository
+type Repository interface {
 	InsertUser(ctx context.Context, user *models.User) error
 	GetUserByID(ctx context.Context, id string) (*models.User, error)
 	GetUserByEmail(ctx context.Context, id string) (*models.User, error)
@@ -18,11 +15,11 @@ type UserRepo interface {
 	Close() error
 }
 
-var implementation UserRepo
+var implementation Repository
 
 // UserRepo is equal at any implementation of the interface
 // different databases for example
-func SetRepo(repository UserRepo) { // postgres implementation, mongodb implementation, etc
+func SetRepo(repository Repository) { // postgres implementation, mongodb implementation, etc
 	// dependency injection
 	implementation = repository
 }

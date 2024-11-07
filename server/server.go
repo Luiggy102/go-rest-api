@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -57,8 +58,8 @@ func (b *Broker) Start(binder func(s Server, r *mux.Router)) {
 	}
 	repository.SetRepo(repo)
 	// show server status
-	log.Println("Starting server on port:", b.config.Port)
-	if err := http.ListenAndServe(b.config.Port, b.router); err != nil {
+	log.Println("Starting server on port", b.config.Port)
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", b.config.Port), b.router); err != nil {
 		log.Fatalln("Failed to start server:", err)
 	}
 }
