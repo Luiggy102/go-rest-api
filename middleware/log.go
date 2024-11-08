@@ -27,7 +27,7 @@ func Log(server server.Server) func(http.Handler) http.Handler {
 				statusCode:     http.StatusOK,
 			}
 			next.ServeHTTP(wrapper, r)
-			log.Println(wrapper.statusCode, r.Method, r.URL.Path, time.Since(start))
+			log.Println(wrapper.statusCode, r.Method, r.UserAgent(), r.URL.Path, time.Since(start))
 
 		})
 	}
