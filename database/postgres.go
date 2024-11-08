@@ -155,6 +155,42 @@ func (prepo *PostgresRepo) DeletePost(ctx context.Context, id string, userId str
 	return err
 }
 
+// pagination
+func (prepo *PostgresRepo) ListPosts(ctx context.Context, page uint64) ([]*models.Post, error) {
+	// find the posts
+	rows, err := prepo.db.QueryContext(ctx,
+		"select id, post_content, user_id, created_at from posts limit $1 offset $2",
+		2, page*2,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		err = rows.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	posts := []*models.Post{}
+	for rows.Next() { // scan the query
+		p := models.Post{}
+		err = rows.Scan(
+			&p.Id,
+			&p.PostContent,
+			&p.UserId,
+			&p.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+		posts = append(posts, &p) // apend post
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return posts, nil // return the posts
+}
+
 // close the PostgresRepo db
 func (prepo *PostgresRepo) Close() error {
 	err := prepo.db.Close()
