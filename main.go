@@ -62,4 +62,8 @@ func BindRoutes(s server.Server, r *mux.Router) {
 		Methods(http.MethodPut) // update
 	r.HandleFunc("/posts/{id}", handlers.DelelePostHandler(s)).
 		Methods(http.MethodDelete) // delete
+
+		// pagination
+	r.HandleFunc("/posts", handlers.ListPosts(s)).
+		Methods(http.MethodGet)
 }

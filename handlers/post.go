@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/Luiggy102/go-rest-ws/models"
@@ -216,6 +217,40 @@ func DelelePostHandler(s server.Server) http.HandlerFunc {
 			// incorrect token or error
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+	}
+}
+
+// list the posts
+func ListPosts(s server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var err error
+
+		// get the query param
+		pageStr := r.URL.Query().Get("page")
+		// default value
+		var page = uint64(1)
+
+		if pageStr != "" {
+			// not empty = now value
+			page, err = strconv.ParseUint(pageStr, 10, 64)
+			if err != nil {
+				// an error like `/posts?page=foo`
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			}
+		}
+
+		// call the db for the structs
+		posts, err := repository.ListPosts(r.Context(), page)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		// send the response
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(posts)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
 }

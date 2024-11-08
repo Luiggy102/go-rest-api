@@ -160,7 +160,7 @@ func (prepo *PostgresRepo) ListPosts(ctx context.Context, page uint64) ([]*model
 	// find the posts
 	rows, err := prepo.db.QueryContext(ctx,
 		"select id, post_content, user_id, created_at from posts limit $1 offset $2",
-		2, page*2,
+		2, (page-1)*2,
 	)
 	if err != nil {
 		return nil, err
