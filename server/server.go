@@ -63,7 +63,7 @@ func (b *Broker) Start(binder func(s Server, r *mux.Router)) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	b.hub.Run() // start the ws connection
+	go b.hub.Run() // start the ws connection
 	repository.SetRepo(repo)
 	// show server status
 	log.Println("Starting server on port", b.config.Port)

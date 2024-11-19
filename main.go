@@ -39,7 +39,7 @@ func main() {
 func BindRoutes(s server.Server, r *mux.Router) {
 	// use the middleware
 	r.Use(
-		middleware.Log(s),
+		// middleware.Log(s),
 		middleware.CheckAuth(s),
 	)
 	// handler func and http methods
