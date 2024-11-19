@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"sync"
@@ -92,4 +93,18 @@ func (hub *Hub) onDisconnect(client *Client) {
 	}
 	// the the client from the slice
 	hub.clients = append(hub.clients[:index], hub.clients[index+1:]...)
+}
+
+// send a message throught the ws connection
+func (hub *Hub) Broadcast(message interface{}, ignore *Client) {
+	// mashal de content message
+	data, _ := json.Marshal(message)
+
+	// send to the clients
+	for _, c := range hub.clients {
+		if c != ignore {
+			c.outbound <- data // send the data
+		}
+	}
+
 }

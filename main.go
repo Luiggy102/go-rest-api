@@ -9,7 +9,6 @@ import (
 	"github.com/Luiggy102/go-rest-ws/handlers"
 	"github.com/Luiggy102/go-rest-ws/middleware"
 	"github.com/Luiggy102/go-rest-ws/server"
-	"github.com/Luiggy102/go-rest-ws/websocket"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 )
@@ -38,8 +37,6 @@ func main() {
 
 // define endpoints for router start
 func BindRoutes(s server.Server, r *mux.Router) {
-	// add the hub for websockets
-	hub := websocket.NewHub()
 	// use the middleware
 	r.Use(
 		middleware.Log(s),
@@ -70,6 +67,5 @@ func BindRoutes(s server.Server, r *mux.Router) {
 	r.HandleFunc("/posts", handlers.ListPosts(s)).
 		Methods(http.MethodGet)
 		// websockets
-	go hub.Run()
-	r.HandleFunc("/ws", hub.HandleWebSocket)
+	r.HandleFunc("/ws", s.Hub().HandleWebSocket)
 }
