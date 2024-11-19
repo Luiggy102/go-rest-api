@@ -69,6 +69,7 @@ func BindRoutes(s server.Server, r *mux.Router) {
 		// pagination
 	r.HandleFunc("/posts", handlers.ListPosts(s)).
 		Methods(http.MethodGet)
-	// websockets
+		// websockets
+	go hub.Run()
 	r.HandleFunc("/ws", hub.HandleWebSocket)
 }
