@@ -73,6 +73,13 @@ func InsertPostHandler(s server.Server) http.HandlerFunc {
 				return
 			}
 
+			// send a websocket message
+			wsmessage := models.WebsocketMessage{
+				Type:    "Post_created",
+				Payload: p,
+			}
+			s.Hub().Broadcast(wsmessage, nil)
+
 			// prepare response
 			var response = PostResponse{
 				Id:          p.Id,
